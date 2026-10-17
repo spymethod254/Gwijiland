@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/fs": {},
+    "/api/fs/download": {},
+    "/api/fs/file": {},
+    "/api/fs/upload": {},
+    "/api/github": {},
+    "/api/github/exec": {},
+    "/api/sessions": {},
+    "/api/sessions/[id]": {},
+    "/api/sessions/[id]/input": {},
+    "/api/sessions/[id]/stream": {}
+  }
+}
