@@ -101,23 +101,28 @@ export async function POST(req: NextRequest) {
 
   switch (body?.action) {
     case "save": {
-      const token = (body.token || "").trim();
-      if (!token) return Response.json({ error: "token required" }, { status: 400 });
-      const res = await ghApi("/user", token);
-      if (!res.ok) {
-        return Response.json(
-          { error: `GitHub rejected the token (HTTP ${res.status})` },
-          { status: 401 },
-        );
-      }
-      const user = (await res.json()) as Record<string, unknown>;
-      await saveCreds({
-        token,
-        login: String(user.login || ""),
-        avatarUrl: String(user.avatar_url || ""),
-      });
-      return Response.json({ ok: true, login: user.login });
-    }
+  const token = (body.token || "").trim();
+  if (!token) return Response.json({ error: "token required" }, { status: 400 });
+  const res = await ghApi("/user", token);
+  if (!res.ok) {
+    return Response.json(
+      { error: `GitHub rejected the token (HTTP ${res.status})` },
+      { status: 401 },
+    );
+  }
+  const user = (await res.json()) as Record<string, unknown>;
+  try {
+    await saveCreds({
+      token,
+      login: String(user.login || ""),
+      avatarUrl: String(user.avatar_url || ""),
+    });
+  } catch (e) {
+    console.error("SAVE_CREDS_FAILED:", e);
+    return Response.json({ error: `DB save failed: ${String(e)}` }, { status: 500 });
+  }
+  return Response.json({ ok: true, login: user.login });
+}
     case "disconnect":
       await clearCreds();
       return Response.json({ ok: true });
